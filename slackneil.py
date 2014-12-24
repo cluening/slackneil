@@ -7,7 +7,10 @@ import cgitb
 
 cgitb.enable(display=0, logdir="/tmp/slackneil")
 
+expectedtoken = "Tax3fZPwADe2NbKuSjxnXzXr"
+
 def main():
+  reply = {}
   declarfile = open("/tmp/declar", "r")
   declarjson = declarfile.readline()
   declarfile.close()
@@ -24,19 +27,14 @@ def main():
   while word != "__END__":
     sentence.append(word)
     word = str(declarvocab[word.lower()][random.randint(0, len(declarvocab[word.lower()]) - 1)])
-  cleansentence =  " ".join(sentence[1:])
+  reply["text"] =  " ".join(sentence[1:])
 
-  #print cleansentence
 
   print "Content-Type: text/text"
   print
-  print "{"
   form = cgi.FieldStorage()
   if "token" in form:
-    print "  \"text\": \"%s\"" % cleansentence
-  else:
-    print "  \"text\": \"No token?\""
-  print "}"
+    print json.dumps(reply)
 
 
 if __name__ == "__main__":
