@@ -14,9 +14,16 @@ def main():
 
   reply = {}
 
+  if "text" in form:
+    if form["text"].value.endswith("?"):
+      sentencetype = "interog"
+    else:
+      sentencetype = "declar"
+    inputsentence = form["text"].value.split()[1:]
+    inputsentence.append("__END__")
+
   # Read in the vocabulary
-  # FIXME: this should choose between declar and interog
-  declarfile = open("/tmp/declar", "r")
+  declarfile = open("/tmp/" + sentencetype, "r")
   declarjson = declarfile.readline()
   declarfile.close()
   # This is the slow line
@@ -27,10 +34,6 @@ def main():
     declarvocabclean[key.lower()] = declarvocab[key]
   declarvocab = declarvocabclean
 
-  if "text" in form:
-    inputsentence = form["text"].value.split()[1:]
-    inputsentence.append("__END__")
-
   for i in range(len(inputsentence)-1):
     if inputsentence[i].lower() in declarvocab:
       declarvocab[inputsentence[i].lower()].append(inputsentence[i+1])
@@ -38,8 +41,7 @@ def main():
       declarvocab[inputsentence[i].lower()] = inputsentence[i+1]
 
   # Write out the vocabulary with what it just learned
-  # FIXME: this should choose between declar and interog
-  declarfile = open("/tmp/declar.new", "w")
+  declarfile = open("/tmp/" + sentencetype + ".new", "w")
   json.dump(declarvocab, declarfile)
   declarfile.close()
 
