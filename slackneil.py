@@ -52,6 +52,9 @@ def main():
     word = str(declarvocab[word.lower()][random.randint(0, len(declarvocab[word.lower()]) - 1)])
   reply["text"] =  " ".join(sentence[1:])
 
+  if "user_name" in form:
+    reply["text"] = form["user_name"].value + ": " + reply["text"]
+
 
   print "Content-Type: text/text"
   print
