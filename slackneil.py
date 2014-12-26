@@ -38,7 +38,7 @@ def main():
       wordlist.append(inputsentence[i+1])
       cur.execute("update %s set value=? where key=?" % (sentencetype), (inputsentence[i].lower(), json.dumps(wordlist)))
 
-# FIXME: Put commit line in here
+# conn.commit()
 
   sentence = []
   word = "__START__"
@@ -54,6 +54,7 @@ def main():
   if "user_name" in form:
     reply["text"] = form["user_name"].value + ": " + reply["text"]
 
+  conn.close()
 
   print "Content-Type: text/text"
   print
