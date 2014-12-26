@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import sqlite3
 import random
 import cgi
 import cgitb
@@ -22,34 +23,32 @@ def main():
     inputsentence = form["text"].value.split()[1:]
     inputsentence.append("__END__")
 
-  # Read in the vocabulary
-  declarfile = open("/tmp/" + sentencetype, "r")
-  declarjson = declarfile.readline()
-  declarfile.close()
-  # This is the slow line
-  declarvocab = json.loads(declarjson)
-
-  declarvocabclean = {}
-  for key in declarvocab.keys():
-    declarvocabclean[key.lower()] = declarvocab[key]
-  declarvocab = declarvocabclean
+  conn = sqlite3.connect("neilvocab.sqlite3")
+  cur = conn.cursor()
 
   for i in range(len(inputsentence)-1):
-    if inputsentence[i].lower() in declarvocab:
-      declarvocab[inputsentence[i].lower()].append(inputsentence[i+1])
+    cur.execute('select value from %s where key=?' % (sentencetype), (inputsentence[i].lower(),))
+    returnline = cur.fetchone()
+    if returnline == None:
+      wordlist = []
+      wordlist.append(inputsentence[i+1])
+      cur.execute("insert into %s values(?, ?)" % (sentencetype), (inputsentence[i].lower(), json.dumps(wordlist)))
     else:
-      declarvocab[inputsentence[i].lower()] = inputsentence[i+1]
+      wordlist = json.loads(returnline[0])
+      wordlist.append(inputsentence[i+1])
+      cur.execute("update %s set value=? where key=?" % (sentencetype), (inputsentence[i].lower(), json.dumps(wordlist)))
 
-  # Write out the vocabulary with what it just learned
-  declarfile = open("/tmp/" + sentencetype + ".new", "w")
-  json.dump(declarvocab, declarfile)
-  declarfile.close()
+# FIXME: Put commit line in here
 
   sentence = []
   word = "__START__"
   while word != "__END__":
     sentence.append(word)
-    word = str(declarvocab[word.lower()][random.randint(0, len(declarvocab[word.lower()]) - 1)])
+    cur.execute('select value from %s where key=?' % (sentencetype), (word.lower(),))
+    returnline = cur.fetchone()
+    wordlist = json.loads(returnline[0])
+    word = wordlist[random.randint(0, len(wordlist) - 1)]
+
   reply["text"] =  " ".join(sentence[1:])
 
   if "user_name" in form:
