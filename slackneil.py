@@ -23,7 +23,7 @@ def main():
     inputsentence = form["text"].value.split()[1:]
     inputsentence.append("__END__")
 
-  conn = sqlite3.connect("neilvocab.sqlite3")
+  conn = sqlite3.connect("/home/cluening/projects/slackneil/neilvocab.sqlite3")
   cur = conn.cursor()
 
   for i in range(len(inputsentence)-1):
