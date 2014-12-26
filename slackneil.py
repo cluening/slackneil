@@ -8,8 +8,6 @@ import cgitb
 
 #cgitb.enable(display=0, logdir="/tmp/slackneil")
 
-expectedtoken = "Tax3fZPwADe2NbKuSjxnXzXr"
-
 def main():
   form = cgi.FieldStorage()
 
