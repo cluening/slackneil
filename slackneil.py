@@ -22,21 +22,53 @@ def main():
     inputsentence.append("__END__")
 
   conn = sqlite3.connect("/home/cluening/projects/slackneil/neilvocab.sqlite3")
+
+  learnsentence(inputsentence, sentencetype, conn)
+  reply["text"] = buildsentence(conn)
+
+  conn.close()
+
+  if "user_name" in form:
+    reply["text"] = form["user_name"].value + ": " + reply["text"]
+
+  print "Content-Type: text/text"
+  print
+  if "token" in form:
+    print json.dumps(reply)
+
+#####################################################################
+##
+## Learn the sentence
+##
+def learnsentence(sentence, sentencetype, conn):
   cur = conn.cursor()
 
-  for i in range(len(inputsentence)-1):
-    cur.execute('select value from %s where key=?' % (sentencetype), (inputsentence[i].lower(),))
+  for i in range(len(sentence)-1):
+    cur.execute('select value from %s where key=?' % (sentencetype), (sentence[i].lower(),))
     returnline = cur.fetchone()
     if returnline == None:
       wordlist = []
-      wordlist.append(inputsentence[i+1])
-      cur.execute("insert into %s values(?, ?)" % (sentencetype), (inputsentence[i].lower(), json.dumps(wordlist)))
+      wordlist.append(sentence[i+1])
+      cur.execute("insert into %s values(?, ?)" % (sentencetype), (sentence[i].lower(), json.dumps(wordlist)))
     else:
       wordlist = json.loads(returnline[0])
-      wordlist.append(inputsentence[i+1])
-      cur.execute("update %s set value=? where key=?" % (sentencetype), (inputsentence[i].lower(), json.dumps(wordlist)))
+      wordlist.append(sentence[i+1])
+      cur.execute("update %s set value=? where key=?" % (sentencetype), (sentence[i].lower(), json.dumps(wordlist)))
 
 # conn.commit()
+
+
+#####################################################################
+##
+## Build a sentence
+##
+def buildsentence(conn):
+  cur = conn.cursor()
+
+  if random.randint(0, 9) < 3:
+    sentencetype = "interog"
+  else:
+    sentencetype = "declar"
 
   sentence = []
   word = "__START__"
@@ -47,17 +79,7 @@ def main():
     wordlist = json.loads(returnline[0])
     word = wordlist[random.randint(0, len(wordlist) - 1)]
 
-  reply["text"] =  " ".join(sentence[1:])
-
-  if "user_name" in form:
-    reply["text"] = form["user_name"].value + ": " + reply["text"]
-
-  conn.close()
-
-  print "Content-Type: text/text"
-  print
-  if "token" in form:
-    print json.dumps(reply)
+  return(" ".join(sentence[1:]))
 
 
 if __name__ == "__main__":
