@@ -19,6 +19,7 @@ def main():
     else:
       sentencetype = "declar"
     inputsentence = form["text"].value.split()[1:]
+    inputsentence.insert(0, "__START__")
     inputsentence.append("__END__")
 
   conn = sqlite3.connect("/home/cluening/projects/slackneil/neilvocab.sqlite3")
@@ -44,16 +45,7 @@ def learnsentence(sentence, sentencetype, conn):
   cur = conn.cursor()
 
   for i in range(len(sentence)-1):
-    cur.execute('select value from %s where key=?' % (sentencetype), (sentence[i].lower(),))
-    returnline = cur.fetchone()
-    if returnline == None:
-      wordlist = []
-      wordlist.append(sentence[i+1])
-      cur.execute("insert into %s values(?, ?)" % (sentencetype), (sentence[i].lower(), json.dumps(wordlist)))
-    else:
-      wordlist = json.loads(returnline[0])
-      wordlist.append(sentence[i+1])
-      cur.execute("update %s set value=? where key=?" % (sentencetype), (sentence[i].lower(), json.dumps(wordlist)))
+    cur.execute("insert into %s values(?, ?)" % (sentencetype), (sentence[i].lower(), sentence[i+1]))
 
 # conn.commit()
 
@@ -75,9 +67,8 @@ def buildsentence(conn):
   while word != "__END__":
     sentence.append(word)
     cur.execute('select value from %s where key=?' % (sentencetype), (word.lower(),))
-    returnline = cur.fetchone()
-    wordlist = json.loads(returnline[0])
-    word = wordlist[random.randint(0, len(wordlist) - 1)]
+    returnlist = cur.fetchall()
+    word = returnlist[random.randint(0, len(returnlist) - 1)][0]
 
   return(" ".join(sentence[1:]))
 
