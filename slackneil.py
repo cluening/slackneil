@@ -4,9 +4,6 @@ import json
 import sqlite3
 import random
 import cgi
-import cgitb
-
-#cgitb.enable(display=0, logdir="/tmp/slackneil")
 
 def main():
   form = cgi.FieldStorage()
@@ -14,6 +11,7 @@ def main():
   reply = {}
 
   if "text" in form:
+    form["text"].value.strip()
     if form["text"].value.endswith("?"):
       sentencetype = "interog"
     else:
@@ -36,6 +34,7 @@ def main():
   print
   if "token" in form:
     print json.dumps(reply)
+
 
 #####################################################################
 ##
