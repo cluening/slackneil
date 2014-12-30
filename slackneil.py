@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import string
 import json
 import sqlite3
 import random
@@ -17,6 +18,8 @@ def main():
 
   if "text" in form:
     form["text"].value.strip()
+    form["text"].value = string.replace(form["text"].value, "__END__", "_END_")
+    form["text"].value = string.replace(form["text"].value, "__START__", "_START_")
     if form["text"].value.endswith("?"):
       sentencetype = "interog"
     else:
