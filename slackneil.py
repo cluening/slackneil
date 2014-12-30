@@ -4,8 +4,13 @@ import json
 import sqlite3
 import random
 import cgi
+import ConfigParser
 
 def main():
+  config = ConfigParser.ConfigParser()
+  config.read("slackneil.conf")
+  dbfile = config.get("Slack Neil", "dbfile")
+
   form = cgi.FieldStorage()
 
   reply = {}
@@ -20,7 +25,7 @@ def main():
     inputsentence.insert(0, "__START__")
     inputsentence.append("__END__")
 
-  conn = sqlite3.connect("/home/cluening/projects/slackneil/neilvocab.sqlite3")
+  conn = sqlite3.connect(dbfile)
 
   learnsentence(inputsentence, sentencetype, conn)
   reply["text"] = buildsentence(conn)
