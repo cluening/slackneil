@@ -54,7 +54,7 @@ def learnsentence(sentence, sentencetype, conn):
   for i in range(len(sentence)-1):
     cur.execute("insert into %s values(?, ?)" % (sentencetype), (sentence[i].lower(), sentence[i+1]))
 
-# conn.commit()
+  conn.commit()
 
 
 #####################################################################
