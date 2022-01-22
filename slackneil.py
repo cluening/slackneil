@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import string
 import json
 import sqlite3
 import random
 import cgi
-import ConfigParser
+import configparser
 
 def main():
-  config = ConfigParser.ConfigParser()
+  config = configparser.ConfigParser()
   config.read("slackneil.conf")
   dbfile = config.get("Slack Neil", "dbfile")
 
@@ -18,8 +18,8 @@ def main():
 
   if "text" in form:
     form["text"].value.strip()
-    form["text"].value = string.replace(form["text"].value, "__END__", "_END_")
-    form["text"].value = string.replace(form["text"].value, "__START__", "_START_")
+    form["text"].value.replace("__END__", "_END_")
+    form["text"].value.replace("__START__", "_START_")
     if form["text"].value.endswith("?"):
       sentencetype = "interog"
     else:
@@ -38,10 +38,10 @@ def main():
   if "user_name" in form:
     reply["text"] = form["user_name"].value + ": " + reply["text"]
 
-  print "Content-Type: text/text"
-  print
+  print("Content-Type: text/text")
+  print()
   if "token" in form:
-    print json.dumps(reply)
+    print(json.dumps(reply))
 
 
 #####################################################################
